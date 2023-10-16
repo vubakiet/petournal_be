@@ -5,6 +5,7 @@ import pet from "./pet.js"
 import follow from "./follow.js"
 import post from "./post.js"
 import comment from "./comment.js"
+import notification from "./notification.js"
 
 const routes = Router();
 
@@ -14,6 +15,7 @@ routes.use("/pet", pet);
 routes.use("/follow", follow);
 routes.use("/post", post);
 routes.use("/comment", comment);
+routes.use("/notification", notification);
 routes.get("/", (req, res) => {
     res.send("Home");
 });
