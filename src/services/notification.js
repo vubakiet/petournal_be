@@ -6,16 +6,19 @@ import Follower from "../models/base/Follower.js";
 const NotificationService = {
     async createNotification(user, notificationBody) {
         try {
-            const follower = await Follower.find({
-                user: user
-            })
-
             let query;
             if(notificationBody.type == NOTIFICATION.FOLLOW){
+                const follower = await Follower.findOne({
+                    user: user,
+                    follower: notificationBody.follow_id
+                })
+
                 query = {
                     _id: new mongoose.Types.ObjectId(),
                     type: notificationBody.type,
-                    userReceive: user
+                    userSend: user,
+                    userReceive: follower,
+                    text: `${}`
                 }
 
             }
