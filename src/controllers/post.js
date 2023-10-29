@@ -27,6 +27,15 @@ const PostController = {
             return res.status(500).json(new ResponseModel(500, ["Lỗi thêm bài viết"], null));
         }
     },
+
+    async likePost(req, res, next){
+        try {
+            const result = await PostService.likePost(req.user, req.params.id);
+            res.json(result);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi thích bài viết"], null));
+        }
+    }
 };
 
 export default PostController;

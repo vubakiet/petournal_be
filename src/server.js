@@ -1,12 +1,18 @@
 import express from "express";
 import http from "http";
-import cookiePaser from "cookie-parser";
+import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import mongoose from "mongoose";
 import { DB_LINK, PORT } from "./config/index.js";
 import routes from "./routes/index.js";
+import { Server } from "socket.io";
+import Gateway from "./socket/gateway.js";
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+global._io = io;
 
 mongoose
     .connect(DB_LINK)
@@ -19,7 +25,7 @@ mongoose
     });
 
 const startServrver = () => {
-    app.use(cookiePaser());
+    app.use(cookieParser());
     app.use(express.json({ limit: "50mb" }));
     app.use(express.urlencoded({ extended: true, limit: "50mb" }));
     app.use(express.json());
@@ -42,5 +48,10 @@ const startServrver = () => {
         });
     });
 
-    http.createServer(app).listen(PORT, () => console.info(`Server is running on port ${PORT}`));
+    global._io.on('connection', Gateway.connection)
+
+    server.listen(PORT, () => console.info(`Server is running on port ${PORT}`));
+
+
+
 };

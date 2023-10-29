@@ -97,9 +97,9 @@ const CommentService = {
                     user: user,
                 },
                 {
-                    $set:{text: commentBody.text}
+                    $set: { text: commentBody.text },
                 },
-                {new: true}
+                { new: true }
             );
 
             console.log(commentUpdate);
@@ -110,18 +110,18 @@ const CommentService = {
         }
     },
 
-    async deleteComment(user, comment_id){
+    async deleteComment(user, comment_id) {
         try {
             const comment = await Comment.findById({ _id: comment_id });
             if (!comment) throw new ResponseModel(400, ["Không tìm thấy bình luận"], null);
 
-            await Comment.findByIdAndDelete({_id: comment_id});
+            await Comment.findByIdAndDelete({ _id: comment_id });
 
-            return new ResponseModel(200, ["Xoá bình luận thành công"], null)
+            return new ResponseModel(200, ["Xoá bình luận thành công"], null);
         } catch (error) {
             console.log(error);
         }
-    }
+    },
 };
 
 export default CommentService;

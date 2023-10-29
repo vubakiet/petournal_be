@@ -10,4 +10,6 @@ route.get("/getPostById/:id", PostController.getPostById);
 
 route.post("/createPost", AuthMiddleware.verifyToken, PostController.createPost);
 
+route.post("/likePost/:id", AuthMiddleware.verifyToken, PostController.likePost);
+
 export default route;
