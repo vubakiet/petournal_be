@@ -4,6 +4,9 @@ import User from "../models/base/User.js";
 import ResponseModel from "../models/response/ResponseModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { hashPassword } from "../utils/hashPassword.js";
+import mongoose from "mongoose";
+import { ROLE } from "../common/constant/role.js";
 
 const AuthService = {
     async checkLogin(body, res) {
@@ -32,7 +35,6 @@ const AuthService = {
             return false;
         }
         return user;
-    
     },
 
     async refeshToken(req, res) {
@@ -56,6 +58,22 @@ const AuthService = {
             newAccessToken,
             newRefreshToken,
         };
+    },
+
+    async register(registerBody) {
+        try {
+            registerBody.password = await hashPassword(registerBody.password);
+            const userSchema = new User({
+                _id: new mongoose.Types.ObjectId(),
+                ...registerBody,
+                role: ROLE.USER,
+            });
+            const result = await userSchema.save();
+
+            return result;
+        } catch (error) {
+            console.log(error);
+        }
     },
 
     async logout(req, res) {

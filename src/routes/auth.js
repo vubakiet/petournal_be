@@ -8,4 +8,8 @@ route.post("/login", AuthController.login);
 
 route.post("/logout", AuthMiddleware.verifyToken, AuthController.logout);
 
+route.post("/register", AuthController.register);
+
+route.post("/refresh-token", AuthController.refreshToken);
+
 export default route;

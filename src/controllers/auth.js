@@ -1,4 +1,6 @@
 import AuthService from "../services/auth.js";
+import { MessageVN } from "../common/constant/message-vn.js";
+import ResponseModel from "../models/response/ResponseModel.js";
 
 const AuthController = {
     async login(req, res, next) {
@@ -22,6 +24,35 @@ const AuthController = {
             const result = await AuthService.logout(req, res);
             res.json(result);
         } catch (e) {
+            res.status(500).json(new ResponseModel(500, [MessageVN.ERROR_500], null));
+        }
+    },
+
+    async register(req, res, next) {
+        try {
+            const response = await AuthService.register(req.body);
+            res.json(response)
+        } catch (error) {
+            res.status(500).json(new ResponseModel(500, [MessageVN.ERROR_500], null));
+        }
+    },
+
+    async refreshToken(req, res, next) {
+        try {
+            const response = await AuthService.refeshToken(req, res);
+            if (response) {
+                res.cookie("refreshTokenPetournal", response.newRefreshToken, {
+                    httpOnly: true,
+                    secure: false,
+                    path: "/",
+                    sameSite: "strict",
+                });
+                delete response.newRefreshToken;
+                res.json(new ResponseModel(200, ["get token success"], response));
+            } else {
+                res.json(new ResponseModel(500, ["Vui lòng đăng nhập lại"], null));
+            }
+        } catch (error) {
             res.status(500).json(new ResponseModel(500, [MessageVN.ERROR_500], null));
         }
     },
