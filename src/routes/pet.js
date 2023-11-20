@@ -8,6 +8,8 @@ route.get("/getPets", PetController.getPets);
 
 route.get("/getPetById/:id", PetController.getPetById);
 
+route.post("/getPetsByUserLogin", AuthMiddleware.verifyToken, PetController.getPetsByUserLogin);
+
 route.post("/createPet", AuthMiddleware.verifyToken, PetController.createPet);
 
 route.post("/removePet/:id", PetController.removePet)

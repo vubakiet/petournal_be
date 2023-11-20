@@ -15,7 +15,7 @@ const PostService = {
 
     async getPostById(id) {
         try {
-            const post = await Post.findById({ _id: id });
+            const post = await Post.findById({ _id: id }).populate("user").populate("pets");
             return post;
         } catch (error) {
             console.log(error);
@@ -23,6 +23,7 @@ const PostService = {
     },
 
     async createPost(user, post) {
+        console.log(post);
         try {
             await Promise.all(
                 post.pets.map(async (pet_id) => {
@@ -52,17 +53,26 @@ const PostService = {
             const post = await Post.findById(post_id);
             if (!post) throw new ResponseModel(400, ["Không tìm thấy bài viết"], null);
 
-            const likedByUser = post.likes.includes(user);
+            const likedByUser = post.likes.includes(user._id.toString());
+            console.log(likedByUser);
 
             let postUpdate;
 
             if (likedByUser) {
-                postUpdate = await Post.findOneAndUpdate({ _id: post._id }, { $pull: { likes: user } }, { new: true });
+                postUpdate = await Post.findOneAndUpdate(
+                    { _id: post._id },
+                    { $pull: { likes: user._id.toString() } },
+                    { new: true }
+                );
             } else {
-                postUpdate = await Post.findOneAndUpdate({ _id: post._id }, { $push: { likes: user } }, { new: true });
+                postUpdate = await Post.findOneAndUpdate(
+                    { _id: post._id },
+                    { $push: { likes: user._id.toString() } },
+                    { new: true }
+                );
             }
 
-            return postUpdate;
+            return postUpdate.likes;
         } catch (error) {
             console.log(error);
         }

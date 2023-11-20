@@ -1,6 +1,7 @@
 import AuthService from "../services/auth.js";
 import { MessageVN } from "../common/constant/message-vn.js";
 import ResponseModel from "../models/response/ResponseModel.js";
+import MailService from "../services/mail.js";
 
 const AuthController = {
     async login(req, res, next) {
@@ -31,7 +32,37 @@ const AuthController = {
     async register(req, res, next) {
         try {
             const response = await AuthService.register(req.body);
-            res.json(response)
+            res.json(response);
+        } catch (error) {
+            res.status(500).json(new ResponseModel(500, [MessageVN.ERROR_500], null));
+        }
+    },
+
+    async updatePassword(req, res, next) {
+        try {
+            const response = await AuthService.updatePassword(req.body);
+            res.json(response);
+        } catch (error) {
+            res.status(500).json(new ResponseModel(500, [MessageVN.ERROR_500], null));
+        }
+    },
+
+    async sendMailResetPassword(req, res, next) {
+        try {
+            const { email } = req.body;
+            const messageError = await AuthService.checkExistEmail(email);
+            console.log(messageError);
+
+            if (messageError.length === 0) {
+                const tokenForResetPassword = await AuthService.generateTokenForResetPassword(email);
+                if (tokenForResetPassword) {
+                    const response = await MailService.sendMailVerifyResetPassword(email, tokenForResetPassword);
+
+                    res.json(response);
+                }
+            } else {
+                res.status(500).json(new ResponseModel(500, messageError, null));
+            }
         } catch (error) {
             res.status(500).json(new ResponseModel(500, [MessageVN.ERROR_500], null));
         }

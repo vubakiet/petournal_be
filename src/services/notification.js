@@ -15,8 +15,6 @@ const NotificationService = {
                     following: notificationBody.follow_id,
                 });
 
-                console.log(following);
-
                 query = {
                     _id: new mongoose.Types.ObjectId(),
                     type: notificationBody.type,
@@ -42,8 +40,6 @@ const NotificationService = {
             if (notificationBody.type === NOTIFICATION.COMMENT) {
                 const post = await Post.findById(notificationBody.post_id);
 
-                console.log(notificationBody);
-
                 const comment = await Comment.findOne({
                     _id: notificationBody.comment_id,
                     post: post,
@@ -64,8 +60,7 @@ const NotificationService = {
             if (notificationBody.type == NOTIFICATION.REPLY_COMMENT) {
                 const comment = await Comment.findById({ _id: notificationBody.comment_id });
 
-                console.log(comment);
-                if(comment._id.toString() !== comment.parent_id.toString()){
+                if (comment._id.toString() !== comment.parent_id.toString()) {
                     query = {
                         _id: new mongoose.Types.ObjectId(),
                         type: notificationBody.type,
@@ -76,8 +71,6 @@ const NotificationService = {
                     };
                 }
             }
-
-            console.log(query);
 
             const notificationSchema = new Notification(query);
 

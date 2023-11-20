@@ -2,6 +2,7 @@ import Comment from "../models/base/Comment.js";
 import Post from "../models/base/Post.js";
 import mongoose from "mongoose";
 import ResponseModel from "../models/response/ResponseModel.js";
+import { populate } from "dotenv";
 
 const CommentService = {
     async createComment(user, commentBody) {
@@ -51,12 +52,22 @@ const CommentService = {
 
             if (!post) throw new ResponseModel(400, ["Không tìm thấy bài viết"], null);
 
+            const page = commentBody.page || 1; // default to page 1
+            const limit = commentBody.limit || 3;
+            const skip = (page - 1) * limit;
+
+            const totalCommentCount = await Comment.countDocuments({ post: post });
+
             const comments = await Comment.find({
                 post: post,
                 $expr: { $eq: ["$_id", "$parent_id"] },
-            }).limit(commentBody.limit || 5);
+            })
+                .populate("user")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit);
 
-            return comments;
+            return { comments, totalCommentCount };
         } catch (error) {
             console.log(error);
         }
@@ -74,7 +85,9 @@ const CommentService = {
                 post: post,
                 parent_id: comment.parent_id,
                 $expr: { $ne: ["$_id", "$parent_id"] },
-            });
+            })
+                .populate("user")
+                .sort({ createdAt: -1 });
 
             return listCommentChild;
         } catch (error) {
@@ -112,10 +125,22 @@ const CommentService = {
 
     async deleteComment(user, comment_id) {
         try {
-            const comment = await Comment.findById({ _id: comment_id });
-            if (!comment) throw new ResponseModel(400, ["Không tìm thấy bình luận"], null);
+            const comment = await Comment.findOne({
+                _id: comment_id,
+            }).populate("post");
 
-            await Comment.findByIdAndDelete({ _id: comment_id });
+            if (comment.user.toString() != user._id.toString() && comment.post.user.toString() != user._id.toString()) {
+                throw new ResponseModel(400, ["Không tìm thấy bình luận"], null);
+            }
+
+            if (comment.parent_id == comment_id) {
+                const comments = await Comment.find({ parent_id: comment_id });
+                comments.forEach(async (comment) => {
+                    await Comment.findByIdAndDelete({ _id: comment._id });
+                });
+            } else {
+                await Comment.findByIdAndDelete({ _id: comment_id });
+            }
 
             return new ResponseModel(200, ["Xoá bình luận thành công"], null);
         } catch (error) {

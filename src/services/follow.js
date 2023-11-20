@@ -30,6 +30,7 @@ const FollowService = {
             const userFollow = await User.findById(id);
 
             const followedUser = await Following.findOne({
+                user: user,
                 following: userFollow,
             });
 

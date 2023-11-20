@@ -52,7 +52,7 @@ const Gateway = {
 
             const resConnection = await Connection.findOne({
                 socket_id: socket.id,
-            });
+            }).populate('user');
             const userLogin = resConnection.user;
 
             const result = await NotificationService.createNotification(userLogin, notificationBody);
