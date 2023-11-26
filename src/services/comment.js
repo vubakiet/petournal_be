@@ -63,7 +63,7 @@ const CommentService = {
                 $expr: { $eq: ["$_id", "$parent_id"] },
             })
                 .populate("user")
-                .sort({ createdAt: -1 })
+                .sort({ createdAt: 1 })
                 .skip(skip)
                 .limit(limit);
 
@@ -87,7 +87,7 @@ const CommentService = {
                 $expr: { $ne: ["$_id", "$parent_id"] },
             })
                 .populate("user")
-                .sort({ createdAt: -1 });
+                .sort({ createdAt: 1 });
 
             return listCommentChild;
         } catch (error) {
@@ -96,7 +96,6 @@ const CommentService = {
     },
 
     async updateComment(user, commentBody) {
-        console.log(commentBody);
         try {
             const post = await Post.findOne({ _id: commentBody.post_id });
             if (!post) throw new ResponseModel(400, ["Không tìm thấy bài viết"], null);
@@ -115,7 +114,6 @@ const CommentService = {
                 { new: true }
             );
 
-            console.log(commentUpdate);
 
             return commentUpdate;
         } catch (error) {

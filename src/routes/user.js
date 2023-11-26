@@ -12,4 +12,8 @@ route.get("/getUsersRecommend", AuthMiddleware.verifyToken, UserController.getUs
 
 route.post("/create", UserController.createUser);
 
+route.post("/changePassword", AuthMiddleware.verifyToken, UserController.changePassword);
+
+route.post("/updateUser", AuthMiddleware.verifyToken, UserController.updateUser);
+
 export default route;

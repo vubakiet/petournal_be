@@ -4,7 +4,9 @@ import Following from "../models/base/Following.js";
 import Post from "../models/base/Post.js";
 
 const TimeLineService = {
-    async getTimeLine(user) {
+    async getTimeLine(user, body) {
+        const page = body.page || 1;
+
         const followingsOfUser = await Following.find({
             user: user,
         }).sort({ createdAt: -1 });
@@ -52,7 +54,13 @@ const TimeLineService = {
             return dateB - dateA;
         });
 
-        return timeLine;
+        // Implement pagination
+        const pageSize = 3; // You can adjust the page size as needed
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedTimeLine = timeLine.slice(startIndex, endIndex);
+
+        return paginatedTimeLine;
     },
 
     async getTimeLineDetail(post_id) {

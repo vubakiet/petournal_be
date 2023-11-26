@@ -14,6 +14,10 @@ route.get("/getFollowerById/:id", FollowController.getFollowerById);
 
 route.post("/followUser/:id", AuthMiddleware.verifyToken, FollowController.followUser);
 
+route.post("/getFollowingsByUser", AuthMiddleware.verifyToken, FollowController.getFollowingsByUser);
+
+route.post("/getFollowersByUser", AuthMiddleware.verifyToken, FollowController.getFollowersByUser);
+
 route.post("/unFollowUser/:id", FollowController.unFollowUser)
 
 export default route;

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Post from "../models/base/Post.js";
 import ResponseModel from "../models/response/ResponseModel.js";
 import Pet from "../models/base/Pet.js";
+import Comment from "../models/base/Comment.js";
 
 const PostService = {
     async getPosts() {
@@ -47,14 +48,29 @@ const PostService = {
         }
     },
 
+    async deletePost(user, id) {
+        const post = await Post.findOne({
+            _id: id,
+            user: user._id.toString(),
+        });
+        if (!post) {
+            return new ResponseModel(500, ["Không tìm thấy bài viết"]);
+        }
+
+        const deletePost = await Post.findByIdAndDelete(id);
+        if (deletePost) {
+            await Comment.deleteMany({ post: post });
+        }
+
+        return deletePost;
+    },
+
     async likePost(user, post_id) {
         try {
-            console.log(post_id);
             const post = await Post.findById(post_id);
             if (!post) throw new ResponseModel(400, ["Không tìm thấy bài viết"], null);
 
             const likedByUser = post.likes.includes(user._id.toString());
-            console.log(likedByUser);
 
             let postUpdate;
 
