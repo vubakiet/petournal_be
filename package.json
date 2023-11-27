@@ -9,6 +9,9 @@
     "dev": "nodemon ./src/server.js",
     "start": "nodemon ./src/server.js"
   },
+  "engines": {
+    "node": ">=14.20.1"
+  },
   "repository": {
     "type": "git",
     "url": "petournal_be"
