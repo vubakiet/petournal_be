@@ -63,13 +63,20 @@ const startServrver = () => {
     app.get("/ping", (req, res, next) => res.status(200).json({ hello: "world" }));
 
     /** Error handling */
-    app.use((req, res, next) => {
-        const error = new Error("Not found");
+    // app.use((req, res, next) => {
+    //     const error = new Error("Not found");
 
-        console.error(error);
+    //     console.error(error);
 
-        res.status(404).json({
-            message: error.message,
+    //     res.status(404).json({
+    //         message: error.message,
+    //     });
+    // });
+
+    app.use((err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).json({
+            message: 'Internal Server Error',
         });
     });
 
