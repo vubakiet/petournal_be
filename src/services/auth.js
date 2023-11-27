@@ -76,6 +76,48 @@ const AuthService = {
         }
     },
 
+    async updatePassword(body) {
+        try {
+            body.password = await hashPassword(body.password);
+
+            const updateUser = await User.findOneAndUpdate(
+                { email: body.email },
+                { $set: { password: body.password } },
+                { new: true }
+            );
+
+            return updateUser;
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    async checkExistEmail(email) {
+        const messageError = [];
+        const user = await User.findOne({
+            email: email,
+        });
+
+        if (!user) {
+            messageError.push("Email không tồn tại");
+        }
+
+        return messageError;
+    },
+
+    async generateTokenForResetPassword(email) {
+        const token = await jwt.sign(
+            {
+                email: email,
+            },
+            SECRECT_KEY,
+            {
+                expiresIn: "5m",
+            }
+        );
+        return token;
+    },
+
     async logout(req, res) {
         res.clearCookie("refreshTokenPetournal");
         return new ResponseModel(200, ["logout success"]);

@@ -1,3 +1,4 @@
+import ResponseModel from "../models/response/ResponseModel.js";
 import PostService from "../services/post.js";
 
 const PostController = {
@@ -25,6 +26,15 @@ const PostController = {
             res.json(result);
         } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi thêm bài viết"], null));
+        }
+    },
+
+    async deletePost(req, res, next) {
+        try {
+            const result = await PostService.deletePost(req.user, req.params.id);
+            res.json(result);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi xoá bài viết"], null));
         }
     },
 
