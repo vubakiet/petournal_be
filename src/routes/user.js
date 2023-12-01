@@ -8,6 +8,8 @@ route.get("/getUsers", UserController.getUsers);
 
 route.get("/getUserById/:id", UserController.getUserById);
 
+route.get("/getProfileUser/:id", AuthMiddleware.verifyToken, UserController.getProfileUser);
+
 route.get("/getUsersRecommend", AuthMiddleware.verifyToken, UserController.getUsersRecommend);
 
 route.post("/create", UserController.createUser);

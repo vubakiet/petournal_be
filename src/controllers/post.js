@@ -28,6 +28,14 @@ const PostController = {
             return res.status(500).json(new ResponseModel(500, ["Lỗi thêm bài viết"], null));
         }
     },
+    async updatePost(req, res, next) {
+        try {
+            const result = await PostService.updatePost(req.user, req.params.id, req.body);
+            res.json(result);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi sửa bài viết"], null));
+        }
+    },
 
     async deletePost(req, res, next) {
         try {
@@ -38,14 +46,14 @@ const PostController = {
         }
     },
 
-    async likePost(req, res, next){
+    async likePost(req, res, next) {
         try {
             const result = await PostService.likePost(req.user, req.params.id);
             res.json(result);
         } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi thích bài viết"], null));
         }
-    }
+    },
 };
 
 export default PostController;

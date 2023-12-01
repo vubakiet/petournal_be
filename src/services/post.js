@@ -48,6 +48,24 @@ const PostService = {
         }
     },
 
+    async updatePost(user, post_id, body) {
+        const { content, imageUrl } = body;
+        console.log(user, post_id, body);
+        if (!content && !imageUrl) {
+            throw new ResponseModel(500, ["Không chứa nội dung"], null);
+        }
+
+        const post = await Post.findById(post_id);
+        if (!post) throw new ResponseModel(500, ["Không tìm thấy bài viết"], null);
+        const updatePost = await Post.findOneAndUpdate(
+            { _id: post_id, user },
+            { $set: { content, imageUrl } },
+            { new: true }
+        ).populate('user');
+
+        return updatePost;
+    },
+
     async deletePost(user, id) {
         const post = await Post.findOne({
             _id: id,

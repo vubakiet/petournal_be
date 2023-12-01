@@ -10,6 +10,8 @@ route.get("/getPostById/:id", PostController.getPostById);
 
 route.post("/createPost", AuthMiddleware.verifyToken, PostController.createPost);
 
+route.post("/updatePost/:id", AuthMiddleware.verifyToken, PostController.updatePost);
+
 route.post("/deletePost/:id", AuthMiddleware.verifyToken, PostController.deletePost);
 
 route.post("/likePost/:id", AuthMiddleware.verifyToken, PostController.likePost);

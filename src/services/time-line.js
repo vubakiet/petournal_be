@@ -72,6 +72,33 @@ const TimeLineService = {
 
         return { post, comments };
     },
+
+    async getTimeLineByUserId(user, user_id, body) {
+        const page = body.page || 1;
+        const limit = body.limit || 3;
+        const skip = (page - 1) * limit;
+
+        const listPosts = await Post.find({
+            user: user_id,
+        })
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        const timeLine = listPosts.map((post) => ({
+            ...post.toObject(),
+        }));
+
+        await Promise.all(
+            timeLine.map(async (post) => {
+                const userId = user._id.toString();
+                const isLiked = post.likes.includes(userId);
+                post.isLiked = isLiked;
+            })
+        );
+
+        return timeLine;
+    },
 };
 
 export default TimeLineService;

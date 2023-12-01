@@ -20,6 +20,15 @@ const UserController = {
         }
     },
 
+    async getProfileUser(req, res, next) {
+        try {
+            const result = await UserService.getProfileUser(req.user, req.params.id);
+            res.json(result);
+        } catch (e) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi lấy thông tin người dùng"], null));
+        }
+    },
+
     async getUsersRecommend(req, res, next) {
         try {
             const result = await UserService.getUsersRecommend(req.user);
@@ -52,7 +61,7 @@ const UserController = {
                 return res.json(response);
             }
         } catch (e) {
-            return res.status(500).json(new ResponseModel(500, ["Sai mật khẩu"], null));
+            return res.status(500).json(new ResponseModel(500, ["Sai mật khẩu hiện tại"], null));
         }
     },
     async updateUser(req, res, next) {
