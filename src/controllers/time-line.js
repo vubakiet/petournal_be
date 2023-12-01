@@ -10,6 +10,11 @@ const TimeLineController = {
         const result = await TimeLineService.getTimeLineDetail(req.params.id);
         res.json(result);
     },
+
+    async getTimeLineByUserId(req, res, next) {
+        const result = await TimeLineService.getTimeLineByUserId(req.user, req.params.id, req.body);
+        res.json(result);
+    },
 };
 
 export default TimeLineController;

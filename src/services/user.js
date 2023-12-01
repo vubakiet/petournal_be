@@ -8,6 +8,7 @@ import ResponseModel from "../models/response/ResponseModel.js";
 import AuthService from "./auth.js";
 import { REFRESH_KEY, SECRECT_KEY } from "../config/index.js";
 import { TIME_TOKEN } from "../common/constant/time-token.js";
+import Pet from "../models/base/Pet.js";
 
 const UserService = {
     async getUsers() {
@@ -18,6 +19,21 @@ const UserService = {
     async getUserById(id) {
         const user = await User.findById({ _id: id });
         return user;
+    },
+
+    async getProfileUser(userLogin, user_id) {
+        const user = await User.findById(user_id);
+
+        if (!user) {
+            throw new ResponseModel(500, ["Không tồn tại user"], null);
+        }
+
+        const petsOfUser = await Pet.countDocuments({ user: user });
+        const followingsOfUser = await Following.countDocuments({ user: user });
+        const followersOfUser = await Follower.countDocuments({ user: user });
+        const isFollowing = await Following.exists({ user: userLogin, following: user });
+        
+        return { user, petsOfUser, followingsOfUser, followersOfUser, isFollowing: Boolean(isFollowing) };
     },
 
     async getUsersRecommend(user) {

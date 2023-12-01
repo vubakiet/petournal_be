@@ -17,6 +17,12 @@ const PetService = {
         return petsByUserLogin;
     },
 
+    async getPetsByUserId(user_id){
+        const pets = await Pet.find({user: user_id});
+
+        return pets
+    },
+
     async createPet(user, pet) {
         try {
             const petSchema = new Pet({

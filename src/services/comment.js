@@ -57,6 +57,10 @@ const CommentService = {
             const skip = (page - 1) * limit;
 
             const totalCommentCount = await Comment.countDocuments({ post: post });
+            const totalCommentParent = await Comment.countDocuments({
+                post: post,
+                $expr: { $eq: ["$_id", "$parent_id"] },
+            });
 
             const comments = await Comment.find({
                 post: post,
@@ -67,7 +71,7 @@ const CommentService = {
                 .skip(skip)
                 .limit(limit);
 
-            return { comments, totalCommentCount };
+            return { comments, totalCommentCount, totalCommentParent };
         } catch (error) {
             console.log(error);
         }
@@ -113,7 +117,6 @@ const CommentService = {
                 },
                 { new: true }
             );
-
 
             return commentUpdate;
         } catch (error) {
