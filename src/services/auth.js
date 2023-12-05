@@ -126,6 +126,14 @@ const AuthService = {
     generateToken(data, key, timeString) {
         return jwt.sign({ user: data }, key, { expiresIn: timeString });
     },
+
+    generateRandomString() {
+        const chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890";
+        const randomArray = Array.from({ length: 20 }, (v, k) => chars[Math.floor(Math.random() * chars.length)]);
+
+        const randomString = randomArray.join("");
+        return randomString;
+    },
 };
 
 export default AuthService;
