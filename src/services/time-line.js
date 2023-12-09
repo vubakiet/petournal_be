@@ -93,7 +93,10 @@ const TimeLineService = {
             timeLine.map(async (post) => {
                 const userId = user._id.toString();
                 const isLiked = post.likes.includes(userId);
+                const isFollowing = await Following.exists({ user, following: post.user });
+
                 post.isLiked = isLiked;
+                post.isFollowing = Boolean(isFollowing);
             })
         );
 
