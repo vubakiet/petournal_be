@@ -101,7 +101,7 @@ const GroupService = {
             return listPosts;
         }
 
-        return new ResponseModel(500, ["Không tìm thấy bài viếtÏ"], null);
+        // return new ResponseModel(500, ["Không tìm thấy bài viếtÏ"], null);
     },
 };
 
