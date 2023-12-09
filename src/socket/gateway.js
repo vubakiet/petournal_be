@@ -7,6 +7,8 @@ import ResponseModel from "../models/response/ResponseModel.js";
 import { NOTIFICATION } from "../common/constant/notification.js";
 import Post from "../models/base/Post.js";
 import NotificationService from "../services/notification.js";
+import ConversationService from "../services/conversation.js";
+import MessageService from "../services/message.js";
 
 const Gateway = {
     async connection(socket) {
@@ -15,6 +17,7 @@ const Gateway = {
         const token = socket.handshake.headers.authorization;
 
         const user = await Gateway.getUserByAccessToken(token);
+        console.log(user);
         const existConnection = await Connection.findOne({
             user: user,
         });
@@ -43,16 +46,10 @@ const Gateway = {
             });
         });
 
-        socket.on("newMessage", (msg) => {
-            console.log(`msg is: ${msg}`);
-            _io.emit("receiveMessage", msg);
-        });
-
         socket.on("like-post-notification", async (notificationBody) => {
-
             const resConnection = await Connection.findOne({
                 socket_id: socket.id,
-            }).populate('user');
+            }).populate("user");
             const userLogin = resConnection.user;
 
             const result = await NotificationService.createNotification(userLogin, notificationBody);
@@ -66,6 +63,17 @@ const Gateway = {
                 if (receiverConnection) {
                     _io.to(receiverConnection.socket_id).emit("listen-like-post-notification", result);
                 }
+            }
+        });
+
+        socket.on("send-message", async (messageBody) => {
+            
+            const receiverConnection = await Connection.findOne({
+                user: messageBody.userId,
+            });
+
+            if (receiverConnection) {
+                _io.to(receiverConnection.socket_id).emit("listen-receive-message", messageBody.data);
             }
         });
     },

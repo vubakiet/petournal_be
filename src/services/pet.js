@@ -9,8 +9,14 @@ const PetService = {
         return pets;
     },
 
-    async getPetById(id) {
-        const pet = await Pet.findById({ _id: id }).populate("user");
+    async getPetById(user, id) {
+        const result = await Pet.findById({ _id: id }).populate("user");
+
+        const isLiked = result.likes.includes(user._id.toString());
+        let pet = {
+            ...result.toObject(),
+            isLiked: isLiked,
+        };
         return pet;
     },
 
@@ -23,31 +29,64 @@ const PetService = {
         const page = body.page || 1;
         const limit = body.limit || 3;
         const skip = (page - 1) * limit;
-        let petsByUserLogin;
+        let listPet;
+        let countPets;
 
-        if (body.species) {
-            petsByUserLogin = await Pet.find({ user: user._id, species: body.species })
+        if (body.species == "all") {
+            listPet = await Pet.find({ user: user._id }).skip(skip).limit(limit).sort({ createdAt: -1 });
+            countPets = await Pet.countDocuments({ user: user._id });
+        }
+
+        if (body.species && body.species !== "all") {
+            listPet = await Pet.find({ user: user._id, species: body.species })
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });
+            countPets = await Pet.countDocuments({ user: user._id, species: body.species });
         } else {
-            petsByUserLogin = await Pet.find({ user: user._id }).skip(skip).limit(limit).sort({ createdAt: -1 });
+            listPet = await Pet.find({ user: user._id }).skip(skip).limit(limit).sort({ createdAt: -1 });
+            countPets = await Pet.countDocuments({ user: user._id });
         }
 
-        const countPets = await Pet.countDocuments({ user: user._id });
+        let petsByUserLogin = await Promise.all(
+            listPet.map((pet) => {
+                const isLiked = pet.likes.includes(user._id);
+
+                return {
+                    ...pet.toObject(),
+                    isLiked: isLiked,
+                };
+            })
+        );
+
         const totalPages = Math.ceil(countPets / limit);
 
         return { petsByUserLogin, totalPages };
     },
 
-    async getPetsByUserId(user_id) {
+    async getPetsByUserId(user, user_id) {
         const pets = await Pet.find({ user: user_id });
 
-        return pets;
+        let listPet = pets.map((pet) => {
+            const isLiked = pet.likes.includes(user._id.toString());
+
+            return {
+                ...pet.toObject(),
+                isLiked: isLiked,
+            };
+        });
+
+        return listPet;
     },
 
     async createPet(user, pet) {
         try {
+            const { name, species, breed, sex, birthday, avatar, bio } = pet;
+
+            if (!name || !species || !breed || !sex || !birthday || !avatar || !bio) {
+                throw new ResponseModel(500, ["Tạo thú cưng thất bại"], null);
+            }
+
             const petSchema = new Pet({
                 _id: new mongoose.Types.ObjectId(),
                 user,
@@ -106,6 +145,38 @@ const PetService = {
         } catch (error) {
             console.log(error);
         }
+    },
+
+    async likePet(user, pet_id) {
+        const pet = await Pet.findById(pet_id);
+        if (!pet) throw new ResponseModel(500, ["Không tìm thấy pet"], null);
+
+        const likedByUser = pet.likes.includes(user._id.toString());
+
+        let petUpdate;
+
+        if (likedByUser) {
+            petUpdate = await Pet.findOneAndUpdate(
+                { _id: pet._id },
+                { $pull: { likes: user._id.toString() } },
+                { new: true }
+            );
+        } else {
+            petUpdate = await Pet.findOneAndUpdate(
+                { _id: pet._id },
+                { $push: { likes: user._id.toString() } },
+                { new: true }
+            );
+        }
+
+        const isLiked = petUpdate.likes.includes(user._id.toString());
+
+        let result = {
+            ...petUpdate.toObject(),
+            isLiked,
+        };
+
+        return result;
     },
 };
 

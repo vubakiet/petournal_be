@@ -8,7 +8,7 @@ const PetController = {
     },
 
     async getPetById(req, res, next) {
-        const result = await PetService.getPetById(req.params.id);
+        const result = await PetService.getPetById(req.user, req.params.id);
         res.json(result);
     },
 
@@ -32,7 +32,7 @@ const PetController = {
 
     async getPetsByUserId(req, res, next) {
         try {
-            const result = await PetService.getPetsByUserId(req.params.id);
+            const result = await PetService.getPetsByUserId(req.user, req.params.id);
             res.json(result);
         } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách pet của người dùng"], null));
@@ -42,7 +42,11 @@ const PetController = {
     async createPet(req, res, next) {
         try {
             const result = await PetService.createPet(req.user, req.body);
-            res.json(result);
+            if (result) {
+                res.json(result);
+            } else {
+                return res.status(500).json(new ResponseModel(500, ["Lỗi tạo thú cưng"], null));
+            }
         } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi tạo thú cưng"], null));
         }
@@ -68,6 +72,14 @@ const PetController = {
             res.json(result);
         } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách thú cưng"], null));
+        }
+    },
+    async likePet(req, res, next) {
+        try {
+            const result = await PetService.likePet(req.user, req.params.id);
+            res.json(result);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi theo dõi thú cưng"], null));
         }
     },
 };

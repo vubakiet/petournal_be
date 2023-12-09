@@ -21,6 +21,11 @@ const FollowController = {
         res.json(result);
     },
 
+    async getFollowingsByUserPagination(req, res, next) {
+        const result = await FollowService.getFollowingsByUserPagination(req.user, req.body);
+        res.json(result);
+    },
+
     async getFollowingsByUser(req, res, next) {
         const result = await FollowService.getFollowingsByUser(req.user, req.body);
         res.json(result);

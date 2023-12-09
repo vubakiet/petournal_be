@@ -4,6 +4,7 @@ import User from "../models/base/User.js";
 import ResponseModel from "../models/response/ResponseModel.js";
 import Follower from "../models/base/Follower.js";
 import Pet from "../models/base/Pet.js";
+import Conversation from "../models/base/Conversation.js";
 
 const FollowService = {
     async getFollowings() {
@@ -26,7 +27,7 @@ const FollowService = {
         return follower;
     },
 
-    async getFollowingsByUser(user, body) {
+    async getFollowingsByUserPagination(user, body) {
         const page = body.page || 1;
         const limit = body.limit || 6;
         const skip = (page - 1) * limit;
@@ -67,6 +68,34 @@ const FollowService = {
         );
 
         return { listFollowing, totalPages, totalFollowings };
+    },
+
+    async getFollowingsByUser(user) {
+        const followings = await Following.find({ user }).populate("following");
+
+        const listFollowings = await Promise.all(
+            followings.map(async (following) => {
+                const conversation = await Conversation.find({
+                    users: { $all: [user._id.toString(), following.following._id.toString()] },
+                })
+                    .sort({ createdAt: -1 })
+                    .limit(1);
+
+                return {
+                    ...following.toObject(),
+                    isChated: conversation?.length > 0,
+                    lastestConversation: conversation[0] || null,
+                };
+            })
+        );
+
+        const listChat = listFollowings.filter((following) => following.isChated);
+        const listUser = listFollowings.filter((following) => !following.isChated);
+
+        return {
+            listUser,
+            listChat,
+        };
     },
 
     async getFollowersByUser(user, body) {
