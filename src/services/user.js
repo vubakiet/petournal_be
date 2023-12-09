@@ -102,6 +102,7 @@ const UserService = {
         const result = await User.findByIdAndUpdate(user._id.toString(), { $set: { ...body } }, { new: true });
         return result;
     },
+
 };
 
 export default UserService;

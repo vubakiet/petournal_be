@@ -14,6 +14,8 @@ route.get("/getFollowerById/:id", FollowController.getFollowerById);
 
 route.post("/followUser/:id", AuthMiddleware.verifyToken, FollowController.followUser);
 
+route.post("/getFollowingsByUserPagination", AuthMiddleware.verifyToken, FollowController.getFollowingsByUserPagination);
+
 route.post("/getFollowingsByUser", AuthMiddleware.verifyToken, FollowController.getFollowingsByUser);
 
 route.post("/getFollowersByUser", AuthMiddleware.verifyToken, FollowController.getFollowersByUser);

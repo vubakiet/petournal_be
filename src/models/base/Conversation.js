@@ -5,9 +5,8 @@ mongoose.Promise = global.Promise;
 const conversationSchema = new mongoose.Schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
-        users: Array,
-        sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        message: { type: String, require: true, trim: true },
+        message: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
+        users: Array
     },
     {
         timestamps: true,

@@ -9,7 +9,7 @@ const postSchema = new mongoose.Schema(
         content: { type: String, trim: true },
         imageUrl: { type: String },
         likes: Array,
-        pets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Pet", required: true }],
+        pets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Pet" }],
     },
     {
         timestamps: true,
