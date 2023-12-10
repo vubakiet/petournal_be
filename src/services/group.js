@@ -3,6 +3,7 @@ import Group from "../models/base/Group.js";
 import ResponseModel from "../models/response/ResponseModel.js";
 import User from "../models/base/User.js";
 import Following from "../models/base/Following.js";
+import Follower from "../models/base/Follower.js";
 import Post from "../models/base/Post.js";
 
 const GroupService = {
@@ -22,7 +23,7 @@ const GroupService = {
     async createGroup(user, body) {
         const { name, describe, avatar, members } = body;
 
-        if (members?.length < 3) {
+        if (!members || members?.length < 3) {
             throw new ResponseModel(500, ["Số lượng thành viên phải từ 3 trở lên"]);
         }
 
@@ -41,18 +42,34 @@ const GroupService = {
         return result;
     },
 
-    async getGroupsByUserLogin(user) {
+    async getGroupsByUserLogin(user, body) {
         const userId = user._id.toString();
+        const page = body.page || 1;
+        const limit = body.limit || 6;
+        const skip = (page - 1) * limit;
 
-        const groups = await Group.find({ members: { $in: [userId] } });
+        const groups = await Group.find({ members: { $in: [userId] } })
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 });
 
-        return groups;
+        const totalGroups = await Group.countDocuments({ members: { $in: [userId] } });
+        const totalPages = Math.ceil(totalGroups / limit);
+
+        return { groups, totalPages };
     },
 
-    async getGroupsByOwner(user) {
-        const groups = await Group.find({ owner: user });
+    async getGroupsByOwner(user, body) {
+        const page = body.page || 1;
+        const limit = body.limit || 6;
+        const skip = (page - 1) * limit;
 
-        return groups;
+        const groups = await Group.find({ owner: user }).skip(skip).limit(limit).sort({ createdAt: -1 });
+
+        const totalGroups = await Group.countDocuments({ owner: user });
+        const totalPages = Math.ceil(totalGroups / limit);
+
+        return { groups, totalPages };
     },
 
     async addPostToGroup(body) {
@@ -83,7 +100,7 @@ const GroupService = {
                 .limit(limit)
                 .sort({ createdAt: -1 });
 
-                console.log(posts);
+            console.log(posts);
 
             let listPosts = posts.map((post) => ({ ...post.toObject() }));
 
@@ -102,6 +119,44 @@ const GroupService = {
         }
 
         // return new ResponseModel(500, ["Không tìm thấy bài viếtÏ"], null);
+    },
+
+    async getListUserInvite(user) {
+        const followings = await Following.find({ user });
+
+        let listUsers = [];
+
+        await Promise.all(
+            followings.map(async (following) => {
+                const follow = await Following.findOne({ user: following.following, following: user });
+                if (follow) {
+                    listUsers.push(follow.user);
+                }
+            })
+        );
+
+        const users = await User.find({ _id: { $in: listUsers } });
+
+        return users;
+    },
+
+    async updateProfileGroup(user, body) {
+        const { name, avatar, describe } = body;
+
+        if (!name || !describe || !avatar) {
+            throw new ResponseModel(500, ["Tạo nhóm thất bại"], null);
+        }
+
+        const group = await Group.findById(body.group_id);
+        if (!group) throw new ResponseModel(500, ["Không tìm thấy nhóm"], null);
+
+        const updateProfile = await Group.findOneAndUpdate(
+            { _id: group._id, owner: user },
+            { $set: { ...body } },
+            { new: true }
+        );
+
+        return updateProfile;
     },
 };
 
