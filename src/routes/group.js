@@ -18,4 +18,8 @@ route.post("/addPostToGroup", GroupController.addPostToGroup);
 
 route.post("/getPostsFromGroup", AuthMiddleware.verifyToken, GroupController.getPostsFromGroup);
 
+route.post("/getListUserInvite", AuthMiddleware.verifyToken, GroupController.getListUserInvite);
+
+route.post("/updateProfileGroup", AuthMiddleware.verifyToken, GroupController.updateProfileGroup);
+
 export default route;

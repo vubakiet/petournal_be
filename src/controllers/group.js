@@ -39,7 +39,7 @@ const GroupController = {
 
     async getGroupsByUserLogin(req, res, next) {
         try {
-            const result = await GroupService.getGroupsByUserLogin(req.user);
+            const result = await GroupService.getGroupsByUserLogin(req.user, req.body);
             if (result) {
                 res.json(result);
             }
@@ -50,7 +50,7 @@ const GroupController = {
 
     async getGroupsByOwner(req, res, next) {
         try {
-            const result = await GroupService.getGroupsByOwner(req.user);
+            const result = await GroupService.getGroupsByOwner(req.user, req.body);
             if (result) {
                 res.json(result);
             }
@@ -78,6 +78,28 @@ const GroupController = {
             }
         } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách bài viết trong nhóm"], null));
+        }
+    },
+
+    async getListUserInvite(req, res, next) {
+        try {
+            const result = await GroupService.getListUserInvite(req.user);
+            if (result) {
+                res.json(result);
+            }
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách user invite trong nhóm"], null));
+        }
+    },
+
+    async updateProfileGroup(req, res, next) {
+        try {
+            const result = await GroupService.updateProfileGroup(req.user, req.body);
+            if (result) {
+                res.json(result);
+            }
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi cập nhật thông tin nhóm"], null));
         }
     },
 };
