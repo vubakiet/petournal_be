@@ -33,12 +33,11 @@ const ConversationService = {
                 {
                     $group: {
                         _id: {
-                            $setUnion: ["$users", []] // Sort and make it a set
+                            $setUnion: ["$users", []], // Sort and make it a set
                         },
                         latestUpdatedAt: { $max: "$updatedAt" },
                         conversation: { $last: "$$ROOT" },
                     },
-            
                 },
                 {
                     $sort: {

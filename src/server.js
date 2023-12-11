@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000", // Your client's address
+        origin: ["http://localhost:3000", "http://localhost:3001"], // Your client's address
         methods: ["GET", "POST"],
         allowedHeaders: ["Authorization"], // Make sure Authorization header is allowed
         credentials: true,
@@ -33,7 +33,7 @@ mongoose
     });
 
 const startServrver = () => {
-    var allowedDomains = [NEXT_APP_CLIENT];
+    var allowedDomains = [NEXT_APP_CLIENT, "http://localhost:3001"];
     app.use(
         cors({
             origin: function (origin, callback) {

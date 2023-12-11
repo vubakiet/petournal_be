@@ -10,6 +10,7 @@ import timeLine from "./time-line.js";
 import conversation from "./conversation.js";
 import message from "./message.js";
 import group from "./group.js";
+import report from "./report.js";
 
 const routes = Router();
 
@@ -24,6 +25,7 @@ routes.use("/timeLine", timeLine);
 routes.use("/conversation", conversation);
 routes.use("/message", message);
 routes.use("/group", group);
+routes.use("/report", report);
 routes.get("/", (req, res) => {
     res.send("Home");
 });

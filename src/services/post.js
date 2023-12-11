@@ -7,7 +7,7 @@ import Comment from "../models/base/Comment.js";
 const PostService = {
     async getPosts() {
         try {
-            const posts = await Post.find();
+            const posts = await Post.find().populate('user');
             return posts;
         } catch (error) {
             console.log(error);
