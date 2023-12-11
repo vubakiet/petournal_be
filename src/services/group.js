@@ -17,7 +17,14 @@ const GroupService = {
 
         const users = await User.find({ _id: { $in: members } });
 
-        return users;
+        const followerCounts = await Promise.all(
+            users.map(async (user) => {
+                const totalFollowers = await Follower.countDocuments({ user: user._id });
+                return { user, totalFollowers };
+            })
+        );
+
+        return followerCounts;
     },
 
     async createGroup(user, body) {
@@ -140,6 +147,30 @@ const GroupService = {
         return users;
     },
 
+    async getListUserInviteOfGroup(user, groupId) {
+        const followings = await Following.find({ user });
+        let listUsers = [];
+
+        await Promise.all(
+            followings.map(async (following) => {
+                const follow = await Following.findOne({ user: following.following, following: user });
+                if (follow) {
+                    listUsers.push(follow.user);
+                }
+            })
+        );
+
+        const groupMembers = await Group.findById(groupId).select("members");
+
+        // Filter out users who are members of the specified group
+        const filteredUsers = listUsers.filter((userId) => !groupMembers.members.includes(userId));
+
+        // Retrieve user details for the filtered users
+        const users = await User.find({ _id: { $in: filteredUsers } });
+
+        return users;
+    },
+
     async updateProfileGroup(user, body) {
         const { name, avatar, describe } = body;
 
@@ -158,6 +189,26 @@ const GroupService = {
 
         return updateProfile;
     },
+
+    async addUserToGroup(loggedInUser, body) {
+        const { groupId, users } = body;
+    
+        // Ensure the user making the request is a member of the group
+        const group = await Group.findOne({ _id: groupId, members: loggedInUser._id.toString() });
+        if (!group) {
+            throw new ResponseModel(500, ["User không thuộc nhóm"]);
+        }
+    
+        // Use $addToSet to ensure unique members in the array
+        const updatedGroup = await Group.findByIdAndUpdate(
+            group._id,
+            { $addToSet: { members: { $each: users } } },
+            { new: true }
+        );
+    
+        return updatedGroup;
+    }
+    
 };
 
 export default GroupService;

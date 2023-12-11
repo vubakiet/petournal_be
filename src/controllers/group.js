@@ -88,6 +88,17 @@ const GroupController = {
                 res.json(result);
             }
         } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách user invite"], null));
+        }
+    },
+
+    async getListUserInviteOfGroup(req, res, next) {
+        try {
+            const result = await GroupService.getListUserInviteOfGroup(req.user, req.params.id);
+            if (result) {
+                res.json(result);
+            }
+        } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách user invite trong nhóm"], null));
         }
     },
@@ -100,6 +111,17 @@ const GroupController = {
             }
         } catch (error) {
             return res.status(500).json(new ResponseModel(500, ["Lỗi cập nhật thông tin nhóm"], null));
+        }
+    },
+
+    async addUserToGroup(req, res, next) {
+        try {
+            const result = await GroupService.addUserToGroup(req.user, req.body);
+            if (result) {
+                res.json(result);
+            }
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi thêm user vào nhóm"], null));
         }
     },
 };
