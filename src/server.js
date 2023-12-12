@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000", "http://localhost:3001"], // Your client's address
+        origin: ["http://localhost:3000", "http://localhost:3001", "https://petournal-admin.vercel.app"], // Your client's address
         methods: ["GET", "POST"],
         allowedHeaders: ["Authorization"], // Make sure Authorization header is allowed
         credentials: true,
@@ -33,7 +33,7 @@ mongoose
     });
 
 const startServrver = () => {
-    var allowedDomains = [NEXT_APP_CLIENT, "http://localhost:3001"];
+    var allowedDomains = [NEXT_APP_CLIENT, "http://localhost:3001", "https://petournal-admin.vercel.app"];
     app.use(
         cors({
             origin: function (origin, callback) {
@@ -76,7 +76,7 @@ const startServrver = () => {
     app.use((err, req, res, next) => {
         console.error(err.stack);
         res.status(500).json({
-            message: 'Internal Server Error',
+            message: "Internal Server Error",
         });
     });
 
