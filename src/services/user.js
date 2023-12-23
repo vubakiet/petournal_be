@@ -120,7 +120,7 @@ const UserService = {
             }));
 
             // Combine conditions with $and to match all keywords
-            const users = await User.find({ $and: conditions });
+            const users = await User.find({ $and: conditions.length > 0 ? conditions : [{}] });
 
             return users;
         } catch (error) {

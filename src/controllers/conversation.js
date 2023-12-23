@@ -20,7 +20,15 @@ const ConversationController = {
         } catch (error) {
             next(error);
         }
-    }
+    },
+    async filterConversation(req, res, next) {
+        try {
+            const result = await ConversationService.filterConversation(req.user, req.body);
+            res.json(result);
+        } catch (error) {
+            next(error);
+        }
+    },
 };
 
 export default ConversationController;

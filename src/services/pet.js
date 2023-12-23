@@ -196,7 +196,7 @@ const PetService = {
             }));
 
             // Combine conditions with $and to match all keywords
-            const pets = await Pet.find({ $and: conditions, user: userId });
+            const pets = await Pet.find({ $and: conditions.length > 0 ? conditions : [{}], user: userId });
 
             return pets;
         } catch (error) {

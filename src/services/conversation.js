@@ -83,6 +83,54 @@ const ConversationService = {
             throw error;
         }
     },
+
+    async filterConversation(user, body) {
+        try {
+            const { keyword } = body;
+            const userId = user._id.toString();
+
+            // Combine conditions with $and to match all keywords
+            const conversations = await Conversation.find({ users: { $in: [userId] } }).populate("userReceive");
+
+            // If you want to get the last message of each conversation
+            const conversationsWithLastMessage = await Promise.all(
+                conversations.map(async (conversation) => {
+                    // Split the keyword into an array of individual words
+                    const keywordsArray = keyword.split(/\s+/).filter(Boolean);
+
+                    // Build an array of conditions for each keyword
+                    const conditions = keywordsArray.map((kw) => ({
+                        $or: [
+                            { lastName: { $regex: kw, $options: "i" } },
+                            { firstName: { $regex: kw, $options: "i" } },
+                            { email: { $regex: kw, $options: "i" } },
+                        ],
+                    }));
+
+                    const userPartner = await User.findOne({
+                        _id: conversation.userReceive._id.toString(),
+                        $and: conditions.length > 0 ? conditions : [{}],
+                    });
+                    if (userPartner !== null) {
+                        const lastMessageId = conversation.message[conversation.message.length - 1];
+                        const lastMessage = await Message.findById(lastMessageId);
+                        const isUserSend = lastMessage.users[0] === userId;
+
+                        return { ...conversation.toObject(), lastMessage, isUserSend, userPartner };
+                    }
+                })
+            );
+
+            const filteredConversations = conversationsWithLastMessage.filter(
+                (conversation) => conversation !== undefined
+            );
+
+            return filteredConversations;
+        } catch (error) {
+            console.error("Error filtering conversations:", error);
+            throw error; // Handle the error appropriately in your application
+        }
+    },
 };
 
 export default ConversationService;

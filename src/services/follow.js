@@ -72,30 +72,7 @@ const FollowService = {
 
     async getFollowingsByUser(user) {
         const followings = await Following.find({ user }).populate("following");
-
-        const listFollowings = await Promise.all(
-            followings.map(async (following) => {
-                const conversation = await Conversation.find({
-                    users: { $all: [user._id.toString(), following.following._id.toString()] },
-                })
-                    .sort({ createdAt: -1 })
-                    .limit(1);
-
-                return {
-                    ...following.toObject(),
-                    isChated: conversation?.length > 0,
-                    lastestConversation: conversation[0] || null,
-                };
-            })
-        );
-
-        const listChat = listFollowings.filter((following) => following.isChated);
-        const listUser = listFollowings.filter((following) => !following.isChated);
-
-        return {
-            listUser,
-            listChat,
-        };
+        return followings;
     },
 
     async getFollowersByUser(user, body) {
@@ -207,7 +184,10 @@ const FollowService = {
                         ],
                     }));
 
-                    const user = await User.findOne({ _id: follower.follower._id, $and: conditions });
+                    const user = await User.findOne({
+                        _id: follower.follower._id,
+                        $and: conditions.length > 0 ? conditions : [{}],
+                    });
                     if (user !== null) {
                         return user;
                     }
@@ -242,7 +222,10 @@ const FollowService = {
                         ],
                     }));
 
-                    const user = await User.findOne({ _id: following.following._id, $and: conditions });
+                    const user = await User.findOne({
+                        _id: following.following._id,
+                        $and: conditions.length > 0 ? conditions : [{}],
+                    });
 
                     if (user !== null) {
                         return user;

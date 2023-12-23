@@ -10,4 +10,6 @@ route.post("/updateIsRead", AuthMiddleware.verifyToken, ConversationController.u
 
 route.post("/countConversationsNotRead", AuthMiddleware.verifyToken, ConversationController.countConversationsNotRead);
 
+route.post("/filterConversation", AuthMiddleware.verifyToken, ConversationController.filterConversation);
+
 export default route;

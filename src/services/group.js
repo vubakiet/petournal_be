@@ -222,7 +222,10 @@ const GroupService = {
             const conditions = keywordsArray.map((kw) => ({ name: { $regex: kw, $options: "i" } }));
 
             // Combine conditions with $and to match all keywords
-            const groups = await Group.find({ $and: conditions, members: { $in: [userId] } });
+            const groups = await Group.find({
+                $and: conditions.length > 0 ? conditions : [{}],
+                members: { $in: [userId] },
+            });
 
             return groups;
         } catch (error) {
