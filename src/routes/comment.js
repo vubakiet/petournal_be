@@ -8,6 +8,8 @@ route.post("/createComment", AuthMiddleware.verifyToken, CommentController.creat
 
 route.post("/getComments", CommentController.getComments);
 
+route.post("/getTotalCommentCount", CommentController.getTotalCommentCount);
+
 route.post("/getCommentsChild", CommentController.getCommentsChild);
 
 route.post("/updateComment", AuthMiddleware.verifyToken, CommentController.updateComment);

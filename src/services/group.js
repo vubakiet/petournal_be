@@ -20,7 +20,8 @@ const GroupService = {
         const followerCounts = await Promise.all(
             users.map(async (user) => {
                 const totalFollowers = await Follower.countDocuments({ user: user._id });
-                return { user, totalFollowers };
+                const isLeader = await Group.exists({ owner: user._id });
+                return { user, totalFollowers, isLeader };
             })
         );
 

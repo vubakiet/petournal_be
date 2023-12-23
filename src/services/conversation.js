@@ -5,95 +5,76 @@ import ResponseModel from "../models/response/ResponseModel.js";
 import User from "../models/base/User.js";
 
 const ConversationService = {
-    async createConversation(messageId) {
-        const message = await Message.findById(messageId);
+    async createConversation(body) {
+        const message = await Message.findById(body.messageId);
         if (!message) throw new ResponseModel(500, ["Không tồn tại tin nhắn"], null);
 
-        const conversationSchema = new Conversation({
-            _id: new mongoose.Types.ObjectId(),
-            message,
-            users: message.users,
+        const isConversationExist = await Conversation.findOne({
+            users: { $all: message.users },
         });
+        console.log(isConversationExist);
+        if (isConversationExist) {
+            const updateConversation = await Conversation.findOneAndUpdate(
+                { _id: isConversationExist._id },
+                { $push: { message: message._id }, $set: { isRead: false, userReceive: body.userReceive } },
+                { new: true }
+            );
+            return updateConversation;
+        } else {
+            const conversationSchema = new Conversation({
+                _id: new mongoose.Types.ObjectId(),
+                message: [message._id],
+                users: message.users,
+                userReceive: body.userReceive,
+            });
+            const result = await conversationSchema.save();
+            return result;
+        }
+    },
 
-        const result = conversationSchema.save();
+    async updateIsRead(user, body) {
+        console.log(body);
+        const conversation = await Conversation.findById(body.conversationId);
+        if (!conversation) throw new ResponseModel(500, ["Không tồn tại tin nhắn"], null);
 
+        const result = await Conversation.findOneAndUpdate(
+            { _id: body.conversationId, userReceive: user },
+            { $set: { isRead: true } },
+            { new: true }
+        );
+        console.log(result);
         return result;
     },
 
     async getConversations(user) {
         try {
             const userId = user._id.toString();
+            const conversations = await Conversation.find({ users: { $in: [userId] } }).sort({ updatedAt: -1 });
 
-            const conversations = await Conversation.aggregate([
-                {
-                    $match: {
-                        users: { $eq: userId },
-                    },
-                },
-                {
-                    $group: {
-                        _id: {
-                            $setUnion: ["$users", []], // Sort and make it a set
-                        },
-                        latestUpdatedAt: { $max: "$updatedAt" },
-                        conversation: { $last: "$$ROOT" },
-                    },
-                },
-                {
-                    $sort: {
-                        latestUpdatedAt: -1,
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "Message",
-                        localField: "conversation.message",
-                        foreignField: "_id",
-                        as: "conversation.message",
-                    },
-                },
-                {
-                    $project: {
-                        _id: "$conversation._id",
-                        message: "$conversation.message",
-                        users: "$conversation.users",
-                        createdAt: "$conversation.createdAt",
-                        updatedAt: "$conversation.updatedAt",
-                    },
-                },
-            ]);
-
-            const conversationsWithUsers = await Promise.all(
+            // If you want to get the last message of each conversation
+            const conversationsWithLastMessage = await Promise.all(
                 conversations.map(async (conversation) => {
-                    const currentUserIndex = conversation.users.indexOf(userId);
-                    const otherUserIndex = currentUserIndex === 0 ? 1 : 0;
-                    const otherUserId = conversation.users[otherUserIndex];
-
-                    const partner = await this.getUserById(otherUserId);
-
-                    return {
-                        _id: conversation._id,
-                        message: conversation.message,
-                        users: conversation.users,
-                        userPartner: partner,
-                        selfChat: userId,
-                        createdAt: conversation.createdAt,
-                        updatedAt: conversation.updatedAt,
-                    };
+                    const lastMessageId = conversation.message[conversation.message.length - 1];
+                    const lastMessage = await Message.findById(lastMessageId);
+                    const isUserSend = lastMessage.users[0] === userId;
+                    const partner = isUserSend ? lastMessage.users[1] : lastMessage.users[0];
+                    const userPartner = await User.findById(partner);
+                    return { ...conversation.toObject(), lastMessage, isUserSend, userPartner };
                 })
             );
 
-            return conversationsWithUsers;
+            return conversationsWithLastMessage;
         } catch (error) {
             console.error(error);
             throw error;
         }
     },
 
-    async getUserById(userId) {
+    async countConversationsNotRead(user) {
         try {
-            const user = await User.findById(userId);
-            return user;
+            const userId = user._id.toString();
+            const count = await Conversation.countDocuments({ userReceive: userId, isRead: false });
+            return count;
         } catch (error) {
             console.error(error);
             throw error;
