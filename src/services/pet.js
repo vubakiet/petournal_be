@@ -178,6 +178,32 @@ const PetService = {
 
         return result;
     },
+    async filterPet(user, body) {
+        try {
+            const { keyword } = body;
+            const userId = user._id.toString();
+
+            // Split the keyword into an array of individual words
+            const keywordsArray = keyword.split(/\s+/).filter(Boolean);
+
+            // Build an array of conditions for each keyword
+            const conditions = keywordsArray.map((kw) => ({
+                $or: [
+                    { name: { $regex: kw, $options: "i" } },
+                    { breed: { $regex: kw, $options: "i" } },
+                    { species: { $regex: kw, $options: "i" } },
+                ],
+            }));
+
+            // Combine conditions with $and to match all keywords
+            const pets = await Pet.find({ $and: conditions, user: userId });
+
+            return pets;
+        } catch (error) {
+            console.error("Error filtering pets:", error);
+            throw error; // Handle the error appropriately in your application
+        }
+    },
 };
 
 export default PetService;

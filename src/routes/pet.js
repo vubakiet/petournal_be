@@ -24,4 +24,6 @@ route.post("/likePet/:id", AuthMiddleware.verifyToken, PetController.likePet);
 
 route.post("/removePet/:id", PetController.removePet);
 
+route.post("/filterPet", AuthMiddleware.verifyToken, PetController.filterPet);
+
 export default route;

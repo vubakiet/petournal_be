@@ -37,6 +37,8 @@ const ConversationService = {
         const conversation = await Conversation.findById(body.conversationId);
         if (!conversation) throw new ResponseModel(500, ["Không tồn tại tin nhắn"], null);
 
+        if (conversation.isRead) return conversation;
+
         const result = await Conversation.findOneAndUpdate(
             { _id: body.conversationId, userReceive: user },
             { $set: { isRead: true } },
@@ -59,6 +61,7 @@ const ConversationService = {
                     const isUserSend = lastMessage.users[0] === userId;
                     const partner = isUserSend ? lastMessage.users[1] : lastMessage.users[0];
                     const userPartner = await User.findById(partner);
+
                     return { ...conversation.toObject(), lastMessage, isUserSend, userPartner };
                 })
             );

@@ -26,4 +26,6 @@ route.post("/updateProfileGroup", AuthMiddleware.verifyToken, GroupController.up
 
 route.post("/addUserToGroup", AuthMiddleware.verifyToken, GroupController.addUserToGroup);
 
+route.post("/filterGroup", AuthMiddleware.verifyToken, GroupController.filterGroup);
+
 export default route;

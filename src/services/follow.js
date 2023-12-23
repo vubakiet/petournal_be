@@ -187,6 +187,77 @@ const FollowService = {
 
         return result;
     },
+    async filterFollower(user, body) {
+        try {
+            const { keyword } = body;
+            const userId = user._id.toString();
+
+            const followers = await Follower.find({ user: userId }).populate("follower");
+
+            const followersWithKeywords = await Promise.all(
+                followers.map(async (follower) => {
+                    const keywordsArray = keyword.split(/\s+/).filter(Boolean);
+
+                    // Build an array of conditions for each keyword
+                    const conditions = keywordsArray.map((kw) => ({
+                        $or: [
+                            { lastName: { $regex: kw, $options: "i" } },
+                            { firstName: { $regex: kw, $options: "i" } },
+                            { email: { $regex: kw, $options: "i" } },
+                        ],
+                    }));
+
+                    const user = await User.findOne({ _id: follower.follower._id, $and: conditions });
+                    if (user !== null) {
+                        return user;
+                    }
+                })
+            );
+
+            const filteredFollowers = followersWithKeywords.filter((user) => user !== undefined);
+
+            return filteredFollowers;
+        } catch (error) {
+            console.error("Error filtering followers ", error);
+            throw error; // Handle the error appropriately in your application
+        }
+    },
+    async filterFollowing(user, body) {
+        try {
+            const { keyword } = body;
+            const userId = user._id.toString();
+
+            const followings = await Following.find({ user: userId }).populate("following");
+
+            const followingsWithKeywords = await Promise.all(
+                followings.map(async (following) => {
+                    const keywordsArray = keyword.split(/\s+/).filter(Boolean);
+
+                    // Build an array of conditions for each keyword
+                    const conditions = keywordsArray.map((kw) => ({
+                        $or: [
+                            { lastName: { $regex: kw, $options: "i" } },
+                            { firstName: { $regex: kw, $options: "i" } },
+                            { email: { $regex: kw, $options: "i" } },
+                        ],
+                    }));
+
+                    const user = await User.findOne({ _id: following.following._id, $and: conditions });
+
+                    if (user !== null) {
+                        return user;
+                    }
+                })
+            );
+
+            const filteredFollowings = followingsWithKeywords.filter((user) => user !== undefined);
+
+            return filteredFollowings;
+        } catch (error) {
+            console.error("Error filtering followings ", error);
+            throw error; // Handle the error appropriately in your application
+        }
+    },
 };
 
 export default FollowService;

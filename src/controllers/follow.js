@@ -1,3 +1,4 @@
+import ResponseModel from "../models/response/ResponseModel.js";
 import FollowService from "../services/follow.js";
 
 const FollowController = {
@@ -48,6 +49,23 @@ const FollowController = {
     async unFollowUser(req, res, next) {
         const result = await FollowService.unFollowUser(req.params.id);
         res.json(result);
+    },
+
+    async filterFollower(req, res, next) {
+        try {
+            const response = await FollowService.filterFollower(req.user, req.body);
+            res.json(response);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Cập nhật thất bại"], null));
+        }
+    },
+    async filterFollowing(req, res, next) {
+        try {
+            const response = await FollowService.filterFollowing(req.user, req.body);
+            res.json(response);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Cập nhật thất bại"], null));
+        }
     },
 };
 
