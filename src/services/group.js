@@ -20,7 +20,8 @@ const GroupService = {
         const followerCounts = await Promise.all(
             users.map(async (user) => {
                 const totalFollowers = await Follower.countDocuments({ user: user._id });
-                return { user, totalFollowers };
+                const isLeader = await Group.exists({ owner: user._id });
+                return { user, totalFollowers, isLeader };
             })
         );
 
@@ -192,23 +193,46 @@ const GroupService = {
 
     async addUserToGroup(loggedInUser, body) {
         const { groupId, users } = body;
-    
+
         // Ensure the user making the request is a member of the group
         const group = await Group.findOne({ _id: groupId, members: loggedInUser._id.toString() });
         if (!group) {
             throw new ResponseModel(500, ["User không thuộc nhóm"]);
         }
-    
+
         // Use $addToSet to ensure unique members in the array
         const updatedGroup = await Group.findByIdAndUpdate(
             group._id,
             { $addToSet: { members: { $each: users } } },
             { new: true }
         );
-    
+
         return updatedGroup;
-    }
-    
+    },
+
+    async filterGroup(user, body) {
+        try {
+            const { keyword } = body;
+            const userId = user._id.toString();
+
+            // Split the keyword into an array of individual words
+            const keywordsArray = keyword.split(/\s+/).filter(Boolean);
+
+            // Build an array of conditions for each keyword
+            const conditions = keywordsArray.map((kw) => ({ name: { $regex: kw, $options: "i" } }));
+
+            // Combine conditions with $and to match all keywords
+            const groups = await Group.find({
+                $and: conditions.length > 0 ? conditions : [{}],
+                members: { $in: [userId] },
+            });
+
+            return groups;
+        } catch (error) {
+            console.error("Error filtering groups:", error);
+            throw error; // Handle the error appropriately in your application
+        }
+    },
 };
 
 export default GroupService;

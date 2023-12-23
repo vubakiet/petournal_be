@@ -124,6 +124,16 @@ const GroupController = {
             return res.status(500).json(new ResponseModel(500, ["Lỗi thêm user vào nhóm"], null));
         }
     },
+    async filterGroup(req, res, next) {
+        try {
+            const result = await GroupService.filterGroup(req.user, req.body);
+            if (result) {
+                res.json(result);
+            }
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách nhóm"], null));
+        }
+    },
 };
 
 export default GroupController;

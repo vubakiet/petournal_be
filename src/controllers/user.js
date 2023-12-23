@@ -72,6 +72,14 @@ const UserController = {
             return res.status(500).json(new ResponseModel(500, ["Cập nhật thất bại"], null));
         }
     },
+    async filterUser(req, res, next) {
+        try {
+            const response = await UserService.filterUser(req.body);
+            res.json(response);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Cập nhật thất bại"], null));
+        }
+    },
 };
 
 export default UserController;

@@ -18,8 +18,8 @@ const MessageService = {
 
             const result = await messageSchema.save();
 
-            if(result){
-                await ConversationService.createConversation(result._id)
+            if (result) {
+                await ConversationService.createConversation({ messageId: result._id, userReceive: to });
             }
             return result;
         } catch (error) {
@@ -53,7 +53,6 @@ const MessageService = {
             console.log(error);
         }
     },
-
 };
 
 export default MessageService;

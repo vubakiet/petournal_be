@@ -7,10 +7,13 @@ const MessageController = {
     },
 
     async getMessages(req, res, next) {
-        const result = await MessageService.getMessages(req.user, req.body);
-        res.json(result);
+        try {
+            const result = await MessageService.getMessages(req.user, req.body);
+            res.json(result);
+        } catch (error) {
+            next(error);
+        }
     },
 };
 
-
-export default MessageController
+export default MessageController;

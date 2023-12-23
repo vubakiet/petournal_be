@@ -55,26 +55,36 @@ const CommentService = {
             const page = commentBody.page || 1; // default to page 1
             const limit = commentBody.limit || 3;
             const skip = (page - 1) * limit;
+            const position = commentBody.position || null;
 
-            const totalCommentCount = await Comment.countDocuments({ post: post });
             const totalCommentParent = await Comment.countDocuments({
                 post: post,
                 $expr: { $eq: ["$_id", "$parent_id"] },
             });
 
-            const comments = await Comment.find({
+            let query = {
                 post: post,
                 $expr: { $eq: ["$_id", "$parent_id"] },
-            })
-                .populate("user")
-                .sort({ createdAt: 1 })
-                .skip(skip)
-                .limit(limit);
+            };
 
-            return { comments, totalCommentCount, totalCommentParent };
+            if (position !== null && position !== undefined) {
+                query.createdAt = { $lt: position };
+            }
+
+            const comments = await Comment.find(query).populate("user").sort({ createdAt: 1 }).skip(skip).limit(limit);
+
+            return { comments, totalCommentParent };
         } catch (error) {
             console.log(error);
         }
+    },
+
+    async getTotalCommentCount(commentBody) {
+        const post = await Post.findOne({ _id: commentBody.post_id });
+        if (!post) throw new ResponseModel(400, ["Không tìm thể bài viết"], null);
+
+        const totalCommentCount = await Comment.countDocuments({ post: post });
+        return totalCommentCount;
     },
 
     async getCommentsChild(commentBody) {

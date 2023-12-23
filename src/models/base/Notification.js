@@ -9,8 +9,10 @@ const notificationSchema = new mongoose.Schema(
         userSend: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         userReceive: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         post: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
-        comment: {type: mongoose.Schema.Types.ObjectId, ref: "Comment"},
+        comment: { type: mongoose.Schema.Types.ObjectId, ref: "Comment" },
+        pet: { type: mongoose.Schema.Types.ObjectId, ref: "Pet" },
         text: { type: String, require: true },
+        isRead: { type: Boolean, default: false },
     },
     {
         timestamps: true,

@@ -6,4 +6,10 @@ const route = Router();
 
 route.post("/getConversations", AuthMiddleware.verifyToken, ConversationController.getConversations);
 
+route.post("/updateIsRead", AuthMiddleware.verifyToken, ConversationController.updateIsRead);
+
+route.post("/countConversationsNotRead", AuthMiddleware.verifyToken, ConversationController.countConversationsNotRead);
+
+route.post("/filterConversation", AuthMiddleware.verifyToken, ConversationController.filterConversation);
+
 export default route;

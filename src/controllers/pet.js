@@ -82,6 +82,14 @@ const PetController = {
             return res.status(500).json(new ResponseModel(500, ["Lỗi theo dõi thú cưng"], null));
         }
     },
+    async filterPet(req, res, next) {
+        try {
+            const result = await PetService.filterPet(req.user, req.body);
+            res.json(result);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Lỗi lấy danh sách thú cưng"], null));
+        }
+    },
 };
 
 export default PetController;

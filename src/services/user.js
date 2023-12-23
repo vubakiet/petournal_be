@@ -32,7 +32,7 @@ const UserService = {
         const followingsOfUser = await Following.countDocuments({ user: user });
         const followersOfUser = await Follower.countDocuments({ user: user });
         const isFollowing = await Following.exists({ user: userLogin, following: user });
-        
+
         return { user, petsOfUser, followingsOfUser, followersOfUser, isFollowing: Boolean(isFollowing) };
     },
 
@@ -103,6 +103,31 @@ const UserService = {
         return result;
     },
 
+    async filterUser(body) {
+        try {
+            const { keyword } = body;
+
+            // Split the keyword into an array of individual words
+            const keywordsArray = keyword.split(/\s+/).filter(Boolean);
+
+            // Build an array of conditions for each keyword
+            const conditions = keywordsArray.map((kw) => ({
+                $or: [
+                    { lastName: { $regex: kw, $options: "i" } },
+                    { firstName: { $regex: kw, $options: "i" } },
+                    { email: { $regex: kw, $options: "i" } },
+                ],
+            }));
+
+            // Combine conditions with $and to match all keywords
+            const users = await User.find({ $and: conditions.length > 0 ? conditions : [{}] });
+
+            return users;
+        } catch (error) {
+            console.error("Error filtering users:", error);
+            throw error; // Handle the error appropriately in your application
+        }
+    },
 };
 
 export default UserService;

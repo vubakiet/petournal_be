@@ -18,4 +18,6 @@ route.post("/changePassword", AuthMiddleware.verifyToken, UserController.changeP
 
 route.post("/updateUser", AuthMiddleware.verifyToken, UserController.updateUser);
 
+route.post("/filterUser", UserController.filterUser);
+
 export default route;
