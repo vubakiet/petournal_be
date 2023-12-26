@@ -3,7 +3,7 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import mongoose from "mongoose";
-import { DB_LINK, NEXT_APP_CLIENT, PORT } from "./config/index.js";
+import { DB_LINK, NEXT_APP_ADMIN, NEXT_APP_CLIENT, PORT } from "./config/index.js";
 import routes from "./routes/index.js";
 import { Server } from "socket.io";
 import Gateway from "./socket/gateway.js";
@@ -33,7 +33,7 @@ mongoose
     });
 
 const startServrver = () => {
-    var allowedDomains = [NEXT_APP_CLIENT, "http://localhost:3001", "https://petournal-admin.vercel.app"];
+    var allowedDomains = [NEXT_APP_CLIENT, "http://localhost:3000", NEXT_APP_ADMIN];
     app.use(
         cors({
             origin: function (origin, callback) {
