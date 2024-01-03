@@ -3,7 +3,11 @@ import Report from "../models/base/Report.js";
 
 const ReportService = {
     async createReport(user, body) {
+        console.log(body);
         try {
+            if (body.reason.length <= 0) {
+                throw new Error("Vui lòng chọn lý do");
+            }
             const reportSchema = new Report({
                 _id: new mongoose.Types.ObjectId(),
                 reporter: user,
@@ -13,6 +17,7 @@ const ReportService = {
             return result;
         } catch (error) {
             console.log(error);
+            throw error;
         }
     },
 
@@ -20,6 +25,21 @@ const ReportService = {
         const reports = await Report.find().populate("user").populate("post");
 
         return reports;
+    },
+
+    async getPostsReported() {
+        const posts = await Report.find({ type: "POST" }).populate("post").populate("reporter");
+        return posts;
+    },
+
+    async getUsersReported() {
+        const users = await Report.find({ type: "USER" }).populate("user").populate("reporter");
+        return users;
+    },
+
+    async getReportDetails(id) {
+        const report = await Report.findById(id).populate("user").populate("post").populate("reporter");
+        return report;
     },
 };
 

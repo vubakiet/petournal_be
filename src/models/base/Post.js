@@ -10,6 +10,7 @@ const postSchema = new mongoose.Schema(
         imageUrl: { type: String },
         likes: Array,
         pets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Pet" }],
+        status: { type: Number, default: 1 },
     },
     {
         timestamps: true,
