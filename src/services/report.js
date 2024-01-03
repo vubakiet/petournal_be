@@ -5,7 +5,7 @@ const ReportService = {
     async createReport(user, body) {
         console.log(body);
         try {
-            if (body.reason.length <= 0) {
+            if (body.reasons.length <= 0) {
                 throw new Error("Vui lòng chọn lý do");
             }
             const reportSchema = new Report({
