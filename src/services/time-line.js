@@ -14,6 +14,7 @@ const TimeLineService = {
         const myPosts = await Post.find({
             user: user,
             pets: { $not: { $size: 0 } },
+            status: 1,
         }).sort({ createdAt: -1 });
 
         const listMyPost = myPosts.map((post) => ({
@@ -27,6 +28,7 @@ const TimeLineService = {
                 const followingPost = await Post.find({
                     user: following.following,
                     pets: { $not: { $size: 0 } },
+                    status: 1,
                 }).sort({ createdAt: -1 });
 
                 const followingPostWithIsCheck = followingPost.map((post) => ({
@@ -83,6 +85,7 @@ const TimeLineService = {
         const listPosts = await Post.find({
             user: user_id,
             pets: { $not: { $size: 0 } },
+            status: 1,
         })
             .skip(skip)
             .limit(limit)

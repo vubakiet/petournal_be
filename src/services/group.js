@@ -103,7 +103,7 @@ const GroupService = {
 
         const postsPostId = group.posts;
         if (postsPostId.length > 0) {
-            const posts = await Post.find({ _id: { $in: postsPostId } })
+            const posts = await Post.find({ _id: { $in: postsPostId }, status: 1 })
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });

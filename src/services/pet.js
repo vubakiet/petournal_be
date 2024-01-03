@@ -127,7 +127,7 @@ const PetService = {
             const limit = body.limit || 3;
             const skip = (page - 1) * limit;
 
-            const posts = await Post.find({ pets: { $in: [pet_id] } })
+            const posts = await Post.find({ pets: { $in: [pet_id] }, status: 1 })
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
