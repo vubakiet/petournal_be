@@ -71,7 +71,7 @@ const Gateway = {
         });
         socket.on("like-post-action", async (body) => {
             const post = await Post.findById(body.post_id);
-            _io.emit("listen-like-post-action", post?.likes);
+            _io.emit("listen-like-post-action", post);
         });
 
         // COMMENT
