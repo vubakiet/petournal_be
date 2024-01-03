@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema(
         gender: { type: Boolean },
         phone: { type: String, trim: true },
         address: { type: String, trim: true },
+        status: { type: Number, default: 1 },
     },
     {
         timestamps: true,

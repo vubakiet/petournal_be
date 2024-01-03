@@ -80,6 +80,15 @@ const UserController = {
             return res.status(500).json(new ResponseModel(500, ["Cập nhật thất bại"], null));
         }
     },
+
+    async changeStatusUser(req, res, next) {
+        try {
+            const response = await UserService.changeStatusUser(req.body);
+            res.json(response);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Cập nhật thất bại"], null));
+        }
+    },
 };
 
 export default UserController;

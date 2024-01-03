@@ -9,7 +9,7 @@ const reportSchema = new mongoose.Schema(
         type: { type: String },
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         post: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
-        reason: { type: String },
+        reasons: Array,
     },
     {
         timestamps: true,

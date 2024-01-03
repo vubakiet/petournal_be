@@ -3,11 +3,12 @@ import Post from "../models/base/Post.js";
 import ResponseModel from "../models/response/ResponseModel.js";
 import Pet from "../models/base/Pet.js";
 import Comment from "../models/base/Comment.js";
+import Report from "../models/base/Report.js";
 
 const PostService = {
     async getPosts() {
         try {
-            const posts = await Post.find().populate('user');
+            const posts = await Post.find().populate("user");
             return posts;
         } catch (error) {
             console.log(error);
@@ -61,7 +62,7 @@ const PostService = {
             { _id: post_id, user },
             { $set: { content, imageUrl } },
             { new: true }
-        ).populate('user');
+        ).populate("user");
 
         return updatePost;
     },
@@ -109,6 +110,25 @@ const PostService = {
             return postUpdate.likes;
         } catch (error) {
             console.log(error);
+        }
+    },
+
+    async changeStatusPost(body) {
+        const { postId, status } = body;
+        const post = await Post.findById(postId);
+        if (!post) throw new ResponseModel(500, ["Không tìm thấy bài viết"], null);
+        console.log(post);
+        const result = await Post.findOneAndUpdate({ _id: postId }, { $set: { status: status } }, { new: true });
+        console.log(body);
+        console.log(result);
+        if (result) {
+            if (result.status == 0) {
+                const reports = await Report.find({ post: result._id });
+                if (reports.length > 0) {
+                    await Report.deleteMany({ post: result._id });
+                }
+            }
+            return result;
         }
     },
 };

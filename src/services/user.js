@@ -9,6 +9,7 @@ import AuthService from "./auth.js";
 import { REFRESH_KEY, SECRECT_KEY } from "../config/index.js";
 import { TIME_TOKEN } from "../common/constant/time-token.js";
 import Pet from "../models/base/Pet.js";
+import Report from "../models/base/Report.js";
 
 const UserService = {
     async getUsers() {
@@ -126,6 +127,19 @@ const UserService = {
         } catch (error) {
             console.error("Error filtering users:", error);
             throw error; // Handle the error appropriately in your application
+        }
+    },
+
+    async changeStatusUser(body) {
+        const result = await User.findByIdAndUpdate(body.userId, { $set: { status: body.status } }, { new: true });
+        if (result) {
+            if (result.status == 0) {
+                const reports = await Report.find({ user: result._id });
+                if (reports.length > 0) {
+                    await Report.deleteMany({ user: result._id });
+                }
+            }
+            return result;
         }
     },
 };

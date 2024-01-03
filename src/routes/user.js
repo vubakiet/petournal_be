@@ -1,10 +1,11 @@
 import { Router } from "express";
 import UserController from "../controllers/user.js";
 import { AuthMiddleware } from "../middlewares/auth.js";
+import { ROLE } from "../common/constant/role.js";
 
 const route = Router();
 
-route.get("/getUsers", UserController.getUsers);
+route.get("/getUsers", AuthMiddleware.authorize(ROLE.ADMIN), UserController.getUsers);
 
 route.get("/getUserById/:id", UserController.getUserById);
 
@@ -19,5 +20,7 @@ route.post("/changePassword", AuthMiddleware.verifyToken, UserController.changeP
 route.post("/updateUser", AuthMiddleware.verifyToken, UserController.updateUser);
 
 route.post("/filterUser", UserController.filterUser);
+
+route.post("/changeStatusUser", AuthMiddleware.authorize(ROLE.ADMIN), UserController.changeStatusUser);
 
 export default route;

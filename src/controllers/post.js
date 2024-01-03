@@ -54,6 +54,15 @@ const PostController = {
             return res.status(500).json(new ResponseModel(500, ["Lỗi thích bài viết"], null));
         }
     },
+
+    async changeStatusPost(req, res, next) {
+        try {
+            const result = await PostService.changeStatusPost(req.body);
+            res.json(result);
+        } catch (error) {
+            return res.status(500).json(new ResponseModel(500, ["Cập nhật thất bại"], null));
+        }
+    },
 };
 
 export default PostController;
