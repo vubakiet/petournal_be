@@ -123,6 +123,16 @@ const Gateway = {
             }
         });
 
+        socket.on("delete-message", async (messageBody) => {
+            const receiverConnection = await Connection.findOne({
+                user: messageBody.userId,
+            });
+
+            if (receiverConnection) {
+                _io.to(receiverConnection.socket_id).emit("listen-delete-message");
+            }
+        });
+
         // FOLLOW
 
         socket.on("follow-notification", async (notificationBody) => {

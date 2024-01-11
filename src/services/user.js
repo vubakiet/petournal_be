@@ -13,7 +13,7 @@ import Report from "../models/base/Report.js";
 
 const UserService = {
     async getUsers() {
-        const users = await User.find();
+        const users = await User.find({ role: "USER" });
         return users;
     },
 
@@ -43,7 +43,7 @@ const UserService = {
         const followingUserIds = following.map((follow) => follow.following);
         followingUserIds.push(user);
 
-        const users = await User.find({ _id: { $nin: followingUserIds } }).limit(3);
+        const users = await User.find({ _id: { $nin: followingUserIds }, role: "USER" }).limit(3);
 
         let listUserRecommend = [];
 
@@ -121,7 +121,7 @@ const UserService = {
             }));
 
             // Combine conditions with $and to match all keywords
-            const users = await User.find({ $and: conditions.length > 0 ? conditions : [{}] });
+            const users = await User.find({ $and: conditions.length > 0 ? conditions : [{}], role: "USER" });
 
             return users;
         } catch (error) {

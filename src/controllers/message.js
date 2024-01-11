@@ -14,6 +14,14 @@ const MessageController = {
             next(error);
         }
     },
+    async deleteMessage(req, res, next) {
+        try {
+            const result = await MessageService.deleteMessage(req.user, req.body);
+            res.json(result);
+        } catch (error) {
+            next(error);
+        }
+    }
 };
 
 export default MessageController;

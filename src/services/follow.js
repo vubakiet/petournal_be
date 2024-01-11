@@ -72,7 +72,20 @@ const FollowService = {
 
     async getFollowingsByUser(user) {
         const followings = await Following.find({ user }).populate("following");
-        return followings;
+
+        let listFollowing = await Promise.all(
+            followings.map(async (following) => {
+                const conversation = await Conversation.findOne({
+                    users: { $all: [user._id.toString(), following.following._id.toString()] },
+                });
+                console.log(conversation);
+                return {
+                    ...following.toObject(),
+                    isChat: conversation ? true : false,
+                };
+            })
+        );
+        return listFollowing;
     },
 
     async getFollowersByUser(user, body) {

@@ -12,7 +12,7 @@ const AuthService = {
     async checkLogin(body, res) {
         const { email, password } = body;
         const user = await User.findOne({ email: email });
-        if (user && user.status === 1) {
+        if (user) {
             const isValidAccount = await bcrypt.compare(password, user.password);
             const ava = user.avatar;
             user.avatar = "";

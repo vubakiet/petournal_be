@@ -29,11 +29,12 @@ const GroupService = {
     },
 
     async createGroup(user, body) {
-        const { name, describe, avatar, members } = body;
+        const { name, describe, avatar } = body;
 
-        if (!members || members?.length < 3) {
+        if (!body.members || body.members?.length < 2) {
             throw new ResponseModel(500, ["Số lượng thành viên phải từ 3 trở lên"]);
         }
+        body.members.push(user._id);
 
         if (!name || !describe || !avatar) {
             throw new ResponseModel(500, ["Tạo nhóm thất bại"], null);

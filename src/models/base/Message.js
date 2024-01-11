@@ -8,6 +8,7 @@ const messageSchema = new mongoose.Schema(
         users: Array,
         sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         message: { type: String, require: true, trim: true },
+        imageUrl: { type: String },
     },
     {
         timestamps: true,

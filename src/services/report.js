@@ -23,8 +23,9 @@ const ReportService = {
 
     async getReports() {
         const reports = await Report.find().populate("user").populate("post");
-
-        return reports;
+        const existsPostReport = reports.some((report) => report.type === "POST");
+        const existsUserReport = reports.some((report) => report.type === "USER");
+        return { reports, existsPostReport, existsUserReport };
     },
 
     async getPostsReported() {
